@@ -30,6 +30,17 @@ app.get('/', (req, res) => {
     res.send('Seat Monitor Backend is running.');
 });
 
+// GET /api/seat-states Endpoint
+app.get('/api/seat-states', async (req, res) => {
+  try {
+      const seatStates = await SeatReclined.find().sort({ timestamp: -1 });
+      res.status(200).json(seatStates);
+  } catch (err) {
+      console.error('Error fetching seat states:', err);
+      res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
 // POST /api/seat-state Endpoint
 app.post('/api/seat-state', async (req, res) => {
     console.log('Received POST request to /api/seat-state');
