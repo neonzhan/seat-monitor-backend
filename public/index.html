@@ -1,0 +1,130 @@
+<!-- public/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Seat Monitor Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: 0 auto;
+            background-color: #fff;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even){
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        #refresh-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #refresh-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>🪑 Seat Monitor Dashboard</h1>
+    <button id="refresh-btn">🔄 Refresh Data</button>
+    <table>
+        <thead>
+            <tr>
+                <th>State</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody id="seat-states-table-body">
+            <!-- Data will be populated here -->
+        </tbody>
+    </table>
+
+    <script>
+        /**
+         * Fetch seat state data from the backend and populate the table
+         */
+        async function fetchSeatStates() {
+            try {
+                const response = await fetch('/api/seat-states');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                populateTable(data);
+            } catch (error) {
+                console.error('Error fetching seat states:', error);
+                alert('Failed to fetch seat states. Check the console for details.');
+            }
+        }
+
+        /**
+         * Populate the HTML table with seat state data
+         * @param {Array} data - Array of seat state objects
+         */
+        function populateTable(data) {
+            const tableBody = document.getElementById('seat-states-table-body');
+            tableBody.innerHTML = ''; // Clear existing data
+
+            if (data.length === 0) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 2;
+                cell.textContent = 'No seat state data available.';
+                row.appendChild(cell);
+                tableBody.appendChild(row);
+                return;
+            }
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+
+                const stateCell = document.createElement('td');
+                stateCell.textContent = item.state;
+                row.appendChild(stateCell);
+
+                const timestampCell = document.createElement('td');
+                const date = new Date(item.timestamp);
+                timestampCell.textContent = date.toLocaleString();
+                row.appendChild(timestampCell);
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Fetch data on page load
+        window.onload = fetchSeatStates;
+
+        // Add event listener to the refresh button
+        document.getElementById('refresh-btn').addEventListener('click', fetchSeatStates);
+
+        // Optionally, refresh data every 30 seconds
+        // setInterval(fetchSeatStates, 30000);
+    </script>
+</body>
+</html>

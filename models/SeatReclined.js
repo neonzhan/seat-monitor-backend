@@ -1,4 +1,5 @@
 // models/SeatReclined.js
+
 const mongoose = require('mongoose');
 
 const SeatReclinedSchema = new mongoose.Schema({
